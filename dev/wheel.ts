@@ -1,12 +1,15 @@
 class Wheel {
                         
-    constructor() {
+    constructor(parent:HTMLElement) {
         // het DOM element waar de div in geplaatst wordt:
-        let container:HTMLElement = document.getElementById("container");
+        let car:HTMLElement = parent;
 
-        let div = document.createElement("wheel");
-        container.appendChild(div);
+        let wheelLeft = document.createElement("wheel");
+        let wheelRight = document.createElement("wheel");
+        car.appendChild(wheelLeft);
+        car.appendChild(wheelRight);
 
-        div.style.transform ="translate(0px, 30px)";
+        wheelLeft.style.transform ="translate(15px, 30px)";
+        wheelRight.style.transform ="translate(100px, 30px)";
     }
 }
