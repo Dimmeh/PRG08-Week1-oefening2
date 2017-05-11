@@ -1,30 +1,30 @@
 /// <reference path="wheel.ts"/>
+/// <reference path="gameObject.ts"/>
 
-class Car {
+class Car extends GameObject{
 
     private speed:number;
-    private div:HTMLElement;
     private braking:boolean;
-    private wheels: Wheel;
-    private x: number;
-    private y: number;
-   // private game:Game;
-            
-    constructor() {
+    private wheelsLeft: Wheel;
+    private wheelsRight: Wheel;
+    private crashed: boolean ;
+    private game: Game;
+
+    constructor(g:Game) {
+        super("car", 0, 220, 45, 145);
         // het DOM element waar de div in geplaatst wordt:
         let container:HTMLElement = document.getElementById("container");
-       // this.game = Game.getInstance();
 
-        this.div = document.createElement("car");
         container.appendChild(this.div);
-        this.wheels = new Wheel(this.div);
+        this.wheelsLeft = new Wheel(this.div, 15, 30);
+        this.wheelsRight = new Wheel(this.div, 100, 30);
         this.speed = 4;
 
-        this.x = 0;
-        this.y = 220;
+        this.game = g;
 
         // hier een keypress event listener toevoegen. een keypress zorgt dat braking true wordt
         //
+        window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e));
 
         // alvast goed zetten
 
@@ -35,29 +35,42 @@ class Car {
         // hier de snelheid verlagen als we aan het afremmen zijn
         //
 
+        if(this.braking == true){
+            this.speed *= 0.98;
+            let score = Math.floor(this.x);
+            document.getElementById("score").innerHTML = "Score : " + score;
+        }
+
         // hier kijken of de x waarde hoger is dan de x van de rots (335)
         //
-        if(this.braking == true){
-            this.speed *= 0.9;
-            console.log(this.x);
-        }
+
         if(this.x < 370){
             this.x += this.speed;
         }
 
         if(this.x > 370){
-            this.speed = 0;
-            Game.getInstance().endGame();
+            if(!this.crashed){
+                this.game.carCrashed(this.speed);
+                this.stop();
+            }
+            this.crashed = true;
         }
 
         // tekenen
         this.div.style.transform ="translate("+this.x+"px,"+this.y+"px)";
     }
 
-    private OnKeyPress(e){
-        let keyboard = window.event ? window.event : e;
+    //
+    // hier een method maken voor on key press
+    //
 
-        if(keyboard){
+    private stop(){
+        this.speed = 0;
+        Game.getInstance().endGame();
+    }
+
+    private onKeyDown(e){
+        if(e.keyCode){
             this.halted();
         }
     }
@@ -65,13 +78,4 @@ class Car {
     private halted(){
         this.braking = true;
     }
-    //
-    // hier een method maken voor on key press
-    //
 }
-
-//
-// window.addEventListener("keypress", function(){
-//     Car.braking()
-// });
-
