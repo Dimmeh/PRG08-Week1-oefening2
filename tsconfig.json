@@ -4,10 +4,10 @@
         "removeComments": true,
         "inlineSources": true,
         "target":"es5",
-        "out": "dist/js/main.js"
+        "out": "docs/js/main.js"
     },
     "exclude": [
         "node_modules",
-        "dist"
+        "docs"
     ]
 }
