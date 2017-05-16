@@ -2,33 +2,23 @@
 
 class Rock extends GameObject{
 
-    private _speed:number;
-    private car: Car;
-
+    private _speed:number = 4;
     private g : number = 0;
     //
-    // public set speed(s:number){
-    //     this._speed = s;
-    //     console.log("THIS SPEED IS: " + this._speed);
-    // }
 
-    constructor(c: Car) {
+    constructor(i:number) {
         super('rock', 509, 209, 62, 62);
-
-        this.car = c;
 
         let container:HTMLElement = document.getElementById('container');
 
         container.appendChild(this.div);
-        // this.div.style.transform = "translate("+this.x+"px, "+this.y+"px)";
-
+        this.y = i * (this.height + 10);
+        this.x = 400 + (Math.random() * 150);
         this._speed = 0;
         this.move();
     }
 
     public move():void {
-        // console.log(this.x);
-        // console.log(this.y);
         // speed optellen zo lang we niet de bodem raken
         this.x += this._speed;
         this.y += this.g;
@@ -39,8 +29,9 @@ class Rock extends GameObject{
             this._speed = 0;
             this.g = 0;
         }
+
         //teken de div op de juiste positie
-        this.div.style.transform = "translate("+this.x+"px, "+this.y+"px)";
+        this.div.style.transform = "translate("+this.x+"px, "+this.y+"px) rotate("+ this.x +"deg)";
     }
 
     public crashed(carSpeed:number) : void{

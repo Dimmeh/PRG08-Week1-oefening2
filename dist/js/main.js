@@ -34,35 +34,53 @@ var Wheel = (function (_super) {
 }(GameObject));
 var Car = (function (_super) {
     __extends(Car, _super);
-    function Car(g) {
+    function Car(g, i, color) {
         var _this = _super.call(this, "car", 0, 220, 45, 145) || this;
         var container = document.getElementById("container");
         container.appendChild(_this.div);
         _this.wheelsLeft = new Wheel(_this.div, 15, 30);
         _this.wheelsRight = new Wheel(_this.div, 100, 30);
-        _this.speed = 4;
+        _this.speed = 2 + (Math.random() * 2);
+        _this.y = i * (_this.height + 27);
+        switch (color) {
+            case "geel":
+                _this.div.style.filter = 'hue-rotate(20deg)';
+                break;
+            case "groen":
+                _this.div.style.filter = 'hue-rotate(40deg)';
+                break;
+            case "blauw":
+                _this.div.style.filter = 'hue-rotate(140deg)';
+                break;
+            case "roze":
+                _this.div.style.filter = 'hue-rotate(250deg)';
+                break;
+            case "paars":
+                _this.div.style.filter = 'hue-rotate(200deg)';
+                break;
+        }
         _this.game = g;
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         _this.move();
         return _this;
     }
     Car.prototype.move = function () {
+        if (this.x < window.innerWidth) {
+            this.x += this.speed;
+        }
         if (this.braking == true) {
             this.speed *= 0.98;
             var score = Math.floor(this.x);
             document.getElementById("score").innerHTML = "Score : " + score;
         }
-        if (this.x < 370) {
-            this.x += this.speed;
-        }
-        if (this.x > 370) {
-            if (!this.crashed) {
-                this.game.carCrashed(this.speed);
-                this.stop();
-            }
-            this.crashed = true;
-        }
         this.div.style.transform = "translate(" + this.x + "px," + this.y + "px)";
+    };
+    Car.prototype.hitDetection = function (r) {
+        if (!this.crashed) {
+            this.game.carCrashed(this.speed, r);
+            this.stop();
+        }
+        this.crashed = true;
     };
     Car.prototype.stop = function () {
         this.speed = 0;
@@ -71,6 +89,7 @@ var Car = (function (_super) {
     Car.prototype.onKeyDown = function (e) {
         if (e.keyCode) {
             this.halted();
+            console.log("PUSHED");
         }
     };
     Car.prototype.halted = function () {
@@ -80,12 +99,14 @@ var Car = (function (_super) {
 }(GameObject));
 var Rock = (function (_super) {
     __extends(Rock, _super);
-    function Rock(c) {
+    function Rock(i) {
         var _this = _super.call(this, 'rock', 509, 209, 62, 62) || this;
+        _this._speed = 4;
         _this.g = 0;
-        _this.car = c;
         var container = document.getElementById('container');
         container.appendChild(_this.div);
+        _this.y = i * (_this.height + 10);
+        _this.x = 400 + (Math.random() * 150);
         _this._speed = 0;
         _this.move();
         return _this;
@@ -98,7 +119,7 @@ var Rock = (function (_super) {
             this._speed = 0;
             this.g = 0;
         }
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px)";
+        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px) rotate(" + this.x + "deg)";
     };
     Rock.prototype.crashed = function (carSpeed) {
         this._speed = carSpeed;
@@ -110,8 +131,19 @@ var Game = (function () {
     function Game() {
         var _this = this;
         var container = document.getElementById("container");
-        this.car = new Car(this);
-        this.rock = new Rock(this.car);
+        this.cars = new Array();
+        this.rocks = new Array();
+        var colors = ["geel", "groen", "blauw", "roze", "paars"];
+        var numCars = Math.floor(Math.random() * 8) + 1;
+        for (var i = 0; i < numCars; i++) {
+            var colorIndex = Math.floor(Math.random() * 5);
+            var color = colors[colorIndex];
+            this.cars.push(new Car(this, i, color));
+        }
+        var numRocks = Math.floor(Math.random() * 8) + 1;
+        for (var i = 0; i < numRocks; i++) {
+            this.rocks.push(new Rock(i));
+        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.getInstance = function () {
@@ -122,15 +154,31 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.car.move();
-        this.rock.move();
+        for (var _i = 0, _a = this.cars; _i < _a.length; _i++) {
+            var car = _a[_i];
+            car.move();
+        }
+        for (var _b = 0, _c = this.rocks; _b < _c.length; _b++) {
+            var rock = _c[_b];
+            rock.move();
+        }
+        for (var _d = 0, _e = this.cars; _d < _e.length; _d++) {
+            var car = _e[_d];
+            for (var _f = 0, _g = this.rocks; _f < _g.length; _f++) {
+                var rock = _g[_f];
+                if (Util.checkCollision(car, rock)) {
+                    rock.move();
+                    car.hitDetection(rock);
+                }
+            }
+        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     Game.prototype.endGame = function () {
         document.getElementById("score").innerHTML = "Score : 0";
     };
-    Game.prototype.carCrashed = function (carSpeed) {
-        this.rock.crashed(carSpeed);
+    Game.prototype.carCrashed = function (carSpeed, r) {
+        r.crashed(carSpeed);
     };
     return Game;
 }());

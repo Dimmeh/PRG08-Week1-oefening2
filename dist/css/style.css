@@ -15,7 +15,7 @@ body * {
 }
 
 container {
-    background-image: url(../images/background.png);
+    background-image: url(../images/road.png);
     background-repeat: no-repeat;
     width:800px; height:600px;
     left: 50%; top: 50%;
@@ -42,22 +42,4 @@ wheel {
 rock {
     background-image: url(../images/rock.png);
     width:62px; height: 62px;
-}
-
-cloud {
-    background-image: url(../images/cloud.png);
-    width:150px; height: 57px;
-    animation: cloudanimation 15s linear infinite;
-}
-
-
-
-@keyframes cloudanimation {
-  0% {
-    transform: translate(-150px, 30px);
-  }
-  
-  100% {
-    transform: translate(800px, 30px);
-  }
 }

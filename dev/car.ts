@@ -10,7 +10,7 @@ class Car extends GameObject{
     private crashed: boolean ;
     private game: Game;
 
-    constructor(g:Game) {
+    constructor(g:Game, i:number, color:string) {
         super("car", 0, 220, 45, 145);
         // het DOM element waar de div in geplaatst wordt:
         let container:HTMLElement = document.getElementById("container");
@@ -18,7 +18,26 @@ class Car extends GameObject{
         container.appendChild(this.div);
         this.wheelsLeft = new Wheel(this.div, 15, 30);
         this.wheelsRight = new Wheel(this.div, 100, 30);
-        this.speed = 4;
+        this.speed = 2 + (Math.random() * 2);
+        this.y = i * (this.height + 27);
+
+        switch (color){
+            case "geel":
+                this.div.style.filter = 'hue-rotate(20deg)';
+                break;
+            case "groen":
+                this.div.style.filter = 'hue-rotate(40deg)';
+                break;
+            case "blauw":
+                this.div.style.filter = 'hue-rotate(140deg)';
+                break;
+            case "roze":
+                this.div.style.filter = 'hue-rotate(250deg)';
+                break;
+            case "paars":
+                this.div.style.filter = 'hue-rotate(200deg)';
+                break;
+        }
 
         this.game = g;
 
@@ -35,6 +54,10 @@ class Car extends GameObject{
         // hier de snelheid verlagen als we aan het afremmen zijn
         //
 
+        if(this.x < window.innerWidth){
+            this.x += this.speed;
+        }
+
         if(this.braking == true){
             this.speed *= 0.98;
             let score = Math.floor(this.x);
@@ -43,28 +66,23 @@ class Car extends GameObject{
 
         // hier kijken of de x waarde hoger is dan de x van de rots (335)
         //
-
-        if(this.x < 370){
-            this.x += this.speed;
-        }
-
-        if(this.x > 370){
-            if(!this.crashed){
-                this.game.carCrashed(this.speed);
-                this.stop();
-            }
-            this.crashed = true;
-        }
-
         // tekenen
         this.div.style.transform ="translate("+this.x+"px,"+this.y+"px)";
+    }
+
+    public hitDetection(r:Rock){
+        if(!this.crashed){
+            this.game.carCrashed(this.speed, r);
+            this.stop();
+        }
+        this.crashed = true;
     }
 
     //
     // hier een method maken voor on key press
     //
 
-    private stop(){
+    public stop(){
         this.speed = 0;
         Game.getInstance().endGame();
     }
@@ -72,6 +90,7 @@ class Car extends GameObject{
     private onKeyDown(e){
         if(e.keyCode){
             this.halted();
+            console.log("PUSHED")
         }
     }
 
